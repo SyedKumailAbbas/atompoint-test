@@ -1,3 +1,4 @@
+
 :root{
   --primary : black;
   --secondary: rgb(247, 4, 4);
@@ -14,7 +15,7 @@
 body {
   overflow: hidden;
   overflow-y: auto;
-  background-color: var(--primary);
+  background-color: whitesmoke;
   color: var(--text);
 }
 

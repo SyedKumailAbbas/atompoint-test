@@ -14,7 +14,7 @@ const Profile = () => {
   useEffect(() => {
     if (!userLoggedIn) {
       navigate("/"); 
-        }
+    }
   }, [userLoggedIn, navigate]);
 
   const showModal = () => {
@@ -26,12 +26,15 @@ const Profile = () => {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Your Blogs!</h1>
+    <div className="container mt-5"> {/* Ensure enough margin below the header */}
+      <h1 className="text-center fw-bold mb-4">My Profile</h1>
       
-      <Button type="primary" onClick={showModal} className="mb-4">
-        Create Blog
-      </Button>
+      <div className="text-center mb-4">
+        <Button type="primary" onClick={showModal}>
+          Create Blog
+        </Button>
+      </div>
+
       <Modal title="Create a New Blog" open={isModalOpen} onCancel={handleClose} footer={null}>
         <BlogForm 
           onBlogCreated={() => {
@@ -41,8 +44,7 @@ const Profile = () => {
         />
       </Modal>
 
-
-      <MyBlogs key={refreshBlogs} /> 
+      <MyBlogs key={refreshBlogs} />
     </div>
   );
 };

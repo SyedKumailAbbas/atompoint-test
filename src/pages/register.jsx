@@ -55,8 +55,8 @@ const Register = () => {
             <div className="login-right">
                 <div className="login-right-container">
                     <div className="login-center">
-                        <h2>Make your account for exciting blogs</h2>
-                        <p>Please enter your details</p>
+                        <h2 className="text-black">Make your account for exciting blogs</h2>
+                        <p className="text-black">Please enter your details</p>
                         <form onSubmit={handleRegisterSubmit}>
                             <Input name="username" placeholder="Username" size="large" />
                             <Input name="email" type="email" placeholder="Email" size="large" className="mt-2" />

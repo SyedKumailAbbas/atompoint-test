@@ -3,6 +3,8 @@ import { db } from "../firebase/firebase-config";
 import { collection, query, orderBy, onSnapshot, getDoc, doc } from "firebase/firestore";
 import { Modal, Button, Card } from "antd";
 import ZeroScreen from "./zeroScreen";
+import "bootstrap/dist/css/bootstrap.min.css";
+
 
 const Blog = () => {
   const [blogs, setBlogs] = useState([]);
@@ -64,62 +66,90 @@ const Blog = () => {
   };
 
   return (
-    <div className="mt-6 px-6 flex flex-col items-center">
+    <div className="container mt-5">
+      <h1 className="text-center text-dark fw-bold mb-4">📝 Latest Blogs</h1>
+
       {blogs.length === 0 ? (
         <ZeroScreen message="No blogs available." />
       ) : (
-        <div className="flex flex-wrap justify-center -mx-4">
-          {blogs.map((blog) => (
-            <div key={blog.id} style={{ width: "1000px", padding: "10px", marginLeft:"200px"}} className="flex justify-center">
-              <Card
-                hoverable
-                style={{ height: "320px", padding: "20px", width: "80%" }}
-                className="shadow-md rounded-lg border border-gray-300 bg-white transition-transform transform hover:scale-105 hover:shadow-xl"
-                onClick={() => openModal(blog)}
+        <div className="row">
+          {blogs.map((blog, index) => {
+            const isLastOdd = blogs.length % 2 !== 0 && index === blogs.length - 1;
+            return (
+              <div
+                key={blog.id}
+                className={`d-flex justify-content-center mb-4 ${isLastOdd ? "col-12" : "col-md-6"
+                  }`}
               >
-                <h2 className="text-xl font-semibold text-gray-900 mb-2 text-center">{blog.title}</h2>
-                <p className="text-gray-700 text-center">
-                  {blog.content.length > 120
-                    ? `${blog.content.slice(0, 200)}...`
-                    : blog.content}
-                </p>
-
-                <div className="mt-4 border-t border-gray-200 pt-3 text-sm text-gray-600 text-center">
-                  <p>
-                    <strong>By {blog.username}</strong> • Posted on{" "}
-                    {blog.createdAt
-                      ? new Date(blog.createdAt.seconds * 1000).toLocaleString()
-                      : "Unknown Date"}
+                <Card
+                  hoverable
+                  className="shadow-lg rounded-lg border border-light p-4 bg-white w-100"
+                  style={{
+                    maxWidth: isLastOdd ? "100%" : "600px",
+                    transition: "transform 0.3s ease-in-out",
+                  }}
+                  onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+                  onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                  onClick={() => openModal(blog)}
+                >
+                  <h2 className="text-dark text-center fw-bold mb-3">{blog.title}</h2>
+                  <p className="text-secondary text-center">
+                    {blog.content.length > 120 ? `${blog.content.slice(0, 200)}...` : blog.content}
                   </p>
-                </div>
 
-                <div className="flex justify-center">
-                  <Button
-                    type="link"
-                    className="mt-3 text-indigo-600 font-semibold"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openModal(blog);
-                    }}
-                  >
-                    Read More
-                  </Button>
-                </div>
-              </Card>
-            </div>
-          ))}
+                  <div className="border-top pt-3 text-muted text-center">
+                    <p>
+                      <strong>By {blog.username}</strong> • Posted on{" "}
+                      {blog.createdAt
+                        ? new Date(blog.createdAt.seconds * 1000).toLocaleString()
+                        : "Unknown Date"}
+                    </p>
+                  </div>
+
+                  <div className="text-center">
+                    <Button
+                      type="primary"
+                      className="mt-3"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openModal(blog);
+                      }}
+                    >
+                      Read More
+                    </Button>
+                  </div>
+                </Card>
+              </div>
+            );
+          })}
         </div>
       )}
 
-      <Modal title={selectedBlog?.title} open={isModalOpen} onCancel={closeModal} footer={null}>
-        <p className="text-gray-700">{selectedBlog?.content}</p>
-        <p className="text-sm text-gray-500 mt-4">
-          <strong>By {selectedBlog?.username}</strong> • Posted on{" "}
-          {selectedBlog?.createdAt
-            ? new Date(selectedBlog.createdAt.seconds * 1000).toLocaleString()
-            : "Unknown Date"}
-        </p>
+      <Modal
+        title={<h2 className="text-center fw-bold text-dark">{selectedBlog?.title}</h2>}
+        open={isModalOpen}
+        onCancel={closeModal}
+        footer={[
+          <Button key="close" type="primary" className="btn btn-danger" onClick={closeModal}>
+            Close
+          </Button>,
+        ]}
+        centered
+        className="custom-modal"
+        zIndex={1050}  // Increase zIndex
+        bodyStyle={{ maxHeight: "80vh", overflowY: "auto" }}
+      >
+        <p className="text-secondary fs-5">{selectedBlog?.content}</p>
+        <div className="text-muted text-center mt-4">
+          <p>
+            <strong>By {selectedBlog?.username}</strong> • Posted on{" "}
+            {selectedBlog?.createdAt
+              ? new Date(selectedBlog.createdAt.seconds * 1000).toLocaleString()
+              : "Unknown Date"}
+          </p>
+        </div>
       </Modal>
+
     </div>
   );
 };

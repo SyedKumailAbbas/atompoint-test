@@ -1,12 +1,15 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/auth";
 import { logOut } from "../firebase/auth";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js"; 
 
 const Header = () => {
     const { userLoggedIn, username } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
+    const navbarRef = useRef(null);
 
     const handleLogout = async () => {
         try {
@@ -17,108 +20,88 @@ const Header = () => {
         }
     };
 
+    const closeNavbar = () => {
+        if (navbarRef.current) {
+            navbarRef.current.classList.remove("show"); 
+        }
+    };
+
     return (
-        <header style={styles.header}>
-            <h1 style={styles.logo}>Recruitment Test Blog</h1>
-
-            {/* Navigation Tabs */}
-            <nav style={styles.nav}>
-                <Link
+        <nav 
+            className="navbar navbar-expand-lg shadow fixed-top" 
+            style={{
+                background: "linear-gradient(90deg, #4A90E2, #1E3C72)", 
+                padding: "12px"
+            }}
+        >
+            <div className="container">
+                <Link 
+                    className="navbar-brand fw-bold text-white fs-4" 
                     to="/home"
-                    style={{
-                        ...styles.navLink,
-                        ...(location.pathname === "/home" ? styles.navLinkActive : {}),
-                    }}
+                    style={{ letterSpacing: "1px" }}
                 >
-                    All Blogs
+                    📘 Recruitment Blog
                 </Link>
-                <Link
-                    to="/my-blogs"
-                    style={{
-                        ...styles.navLink,
-                        ...(location.pathname === "/my-blogs" ? styles.navLinkActive : {}),
-                    }}
+                
+                <button 
+                    className="navbar-toggler border-0" 
+                    type="button" 
+                    data-bs-toggle="collapse" 
+                    data-bs-target="#navbarNav"
                 >
-                    My Blogs
-                </Link>
-            </nav>
+                    <span className="navbar-toggler-icon"></span>
+                </button>
 
-            {/* Auth Buttons */}
-            <nav style={styles.nav}>
-                {userLoggedIn ? (
-                    <>
-                        <span style={styles.username}>Hello, {username || "User"}!</span>
-                        <button onClick={handleLogout} style={styles.button}>Logout</button>
-                    </>
-                ) : location.pathname === "/" ? (
-                    <button style={styles.button}>
-                        <Link to="/register" style={styles.link}>Register</Link>
-                    </button>
-                ) : location.pathname === "/register" ? (
-                    <button style={styles.button}>
-                        <Link to="/" style={styles.link}>Sign In</Link>
-                    </button>
-                ) : null}
-            </nav>
-        </header>
+                <div className="collapse navbar-collapse" id="navbarNav" ref={navbarRef}>
+                    <ul className="navbar-nav me-auto">
+                        <li className="nav-item">
+                            <Link 
+                                className={`nav-link ${location.pathname === "/home" ? "active fw-bold text-warning" : "text-white"}`} 
+                                to="/home"
+                                onClick={closeNavbar} 
+                                style={{ transition: "0.3s" }}
+                            >
+                                📖 All Blogs
+                            </Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link 
+                                className={`nav-link ${location.pathname === "/my-blogs" ? "active fw-bold text-warning" : "text-white"}`} 
+                                to="/my-blogs"
+                                onClick={closeNavbar} 
+                                style={{ transition: "0.3s" }}
+                            >
+                                ✍️ My Blogs
+                            </Link>
+                        </li>
+                    </ul>
+
+                    <ul className="navbar-nav">
+                        {userLoggedIn ? (
+                            <li className="nav-item d-flex align-items-center">
+                                <span className="me-3 fw-bold text-light">👋 Hello, {username || "User"}!</span>
+                                <button 
+                                    className="btn btn-danger px-3"
+                                    onClick={() => { handleLogout(); closeNavbar(); }}
+                                    style={{ transition: "0.3s" }}
+                                >
+                                    🚪 Logout
+                                </button>
+                            </li>
+                        ) : location.pathname === "/" ? (
+                            <li className="nav-item">
+                                <Link className="btn btn-primary px-3" to="/register" onClick={closeNavbar}>📝 Register</Link>
+                            </li>
+                        ) : location.pathname === "/register" || location.pathname === "/home" ? (
+                            <li className="nav-item">
+                                <Link className="btn btn-success px-3" to="/" onClick={closeNavbar}>🔑 Sign In</Link>
+                            </li>
+                        ) : null}
+                    </ul>
+                </div>
+            </div>
+        </nav>
     );
-};
-
-const styles = {
-    header: {
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: "10px 20px",
-        backgroundColor: "#f5f5f5",
-        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-        zIndex: 1000,
-    },
-    logo: {
-        margin: 0,
-        fontSize: "25px",
-        color:"black"
-    },
-    nav: {
-        display: "flex",
-        alignItems: "center",
-        gap: "15px",
-    },
-    navLink: {
-        textDecoration: "none",
-        color: "red",
-        fontSize: "16px",
-        fontWeight: "bold",
-        padding: "8px 12px",
-        borderRadius: "4px",
-        transition: "background 0.3s",
-    },
-    navLinkActive: {
-        background: "#ddd",
-    },
-    button: {
-        padding: "8px 20px",
-        margin: "0 30px",
-        cursor: "pointer",
-        background: "red",
-        color: "white",
-        border: "none",
-        borderRadius: "4px",
-    },
-    link: {
-        textDecoration: "none",
-        color: "white",
-        fontSize: "16px",
-    },
-    username: {
-        fontSize: "16px",
-        fontWeight: "bold",
-        color:"black"
-    },
 };
 
 export default Header;

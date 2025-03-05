@@ -7,6 +7,9 @@ import Home from "./pages/home";
 import Header from "./components/header"; // Import the Header component
 import "./App.css";
 import Profile from "./pages/profile"
+import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+
 function App() {
   return (
     <AuthProvider> 

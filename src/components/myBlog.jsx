@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
 import { db, auth } from "../firebase/firebase-config";
 import {
@@ -7,15 +5,12 @@ import {
   query,
   orderBy,
   where,
-  onSnapshot,
-  deleteDoc,
-  updateDoc,
-  doc,
-  arrayRemove,
+  onSnapshot, deleteDoc, updateDoc, doc, arrayRemove,
 } from "firebase/firestore";
-import { Button, Card, Modal, Input, message } from "antd";
+import { Modal, Button, Card, message } from "antd";
 import { useAuth } from "../contexts/auth";
 import ZeroScreen from "./zeroScreen";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const MyBlogs = () => {
   const [blogs, setBlogs] = useState([]);
@@ -75,20 +70,20 @@ const MyBlogs = () => {
 
   const handleUpdate = async () => {
     if (!selectedBlog) return;
-
     try {
       const blogRef = doc(db, "blogs", selectedBlog.id);
-      await updateDoc(blogRef, {
+      const updatedBlog = {
+        ...selectedBlog,
         title: editTitle,
         content: editContent,
         updatedAt: new Date(),
-      });
+      };
+
+      await updateDoc(blogRef, updatedBlog);
 
       setBlogs((prevBlogs) =>
         prevBlogs.map((blog) =>
-          blog.id === selectedBlog.id
-            ? { ...blog, title: editTitle, content: editContent }
-            : blog
+          blog.id === selectedBlog.id ? { ...blog, ...updatedBlog } : blog
         )
       );
 
@@ -100,19 +95,16 @@ const MyBlogs = () => {
     }
   };
 
+
   const handleDelete = async (blogId) => {
     try {
       if (!currentUser) throw new Error("User not logged in");
-
       await deleteDoc(doc(db, "blogs", blogId));
-
       const userRef = doc(db, "users", currentUser.uid);
       await updateDoc(userRef, {
         Blogs: arrayRemove(blogId),
       });
-
       setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog.id !== blogId));
-
       message.success("Blog deleted successfully!");
     } catch (error) {
       console.error("Error deleting blog:", error);
@@ -121,70 +113,70 @@ const MyBlogs = () => {
   };
 
   return (
-    <div className="mt-6 px-6 flex flex-col items-center">
+    <div className="container mt-5">
+      <h1 className="text-center text-dark fw-bold mb-4">📚 My Blogs</h1>
       {blogs.length === 0 ? (
         <ZeroScreen message="No blogs available." />
       ) : (
-        <div className="flex flex-wrap justify-center -mx-4">
-          {blogs.map((blog) => (
-            <Card
-              key={blog.id}
-              title={blog.title}
-              style={{ marginBottom: "20px", width: "100%", marginTop: "20px" }}
-              className="shadow-md rounded-lg border border-gray-300 bg-white transition-transform transform hover:scale-105 hover:shadow-xl"
-            >
-              <p>{blog.content.slice(0, 100)}...</p>
-              <Button type="link" onClick={() => openModal(blog)}>
-                Read More
-              </Button>
-              <div className="flex justify-between mt-3">
-                <Button size="small" onClick={() => openModal(blog, true)}>
-                  Edit
-                </Button>
-                <Button size="small" danger onClick={() => handleDelete(blog.id)}>
-                  Delete
-                </Button>
+        <div className="row">
+          {blogs.map((blog, index) => {
+            const isLastOdd = blogs.length % 2 !== 0 && index === blogs.length - 1;
+            return (
+              <div
+                key={blog.id}
+                className={`d-flex justify-content-center mb-4 ${isLastOdd ? "col-12" : "col-md-6"
+                  }`}
+              >
+                <Card
+                  hoverable
+                  className="shadow-lg rounded-lg border border-light p-4 bg-white w-100"
+                  style={{ maxWidth: isLastOdd ? "100%" : "600px", transition: "transform 0.3s ease-in-out" }}
+                  onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+                  onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                  onClick={() => openModal(blog)}
+                >
+                  <h2 className="text-dark text-center fw-bold mb-3">{blog.title}</h2>
+                  <p className="text-secondary text-center">
+                    {blog.content.length > 120 ? `${blog.content.slice(0, 200)}...` : blog.content}
+                  </p>
+                  <div className="border-top pt-3 text-muted text-center">
+                    <p>Posted on {blog.createdAt ? new Date(blog.createdAt.seconds * 1000).toLocaleString() : "Unknown Date"}</p>
+                  </div>
+                  <div className="text-center d-flex justify-content-center gap-2 mt-3">
+                    <Button type="primary" onClick={(e) => { e.stopPropagation(); openModal(blog, true); }}>Edit</Button>
+                    <Button type="primary" danger onClick={(e) => { e.stopPropagation(); handleDelete(blog.id); }}>Delete</Button>
+                  </div>
+                </Card>
               </div>
-            </Card>
-          ))}
+            );
+          })}
         </div>
       )}
 
       <Modal
-        title={isEditing ? "Edit Blog" : selectedBlog?.title}
+        title={<h2 className="text-center fw-bold text-dark">{isEditing ? "Edit Blog" : selectedBlog?.title}</h2>}
         open={isModalOpen}
         onCancel={closeModal}
         footer={null}
+        centered
+        className="custom-modal"
+        zIndex={100}
+        bodyStyle={{ maxHeight: "80vh", overflow: "hidden", overflowY: "auto" }}
       >
         {isEditing ? (
           <>
-            <Input
-              className="mb-2"
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
-              placeholder="Edit Title"
-            />
-            <Input.TextArea
-              rows={4}
-              value={editContent}
-              onChange={(e) => setEditContent(e.target.value)}
-              placeholder="Edit Content"
-            />
-            <Button type="primary" className="mt-2" onClick={handleUpdate}>
-              Save Changes
-            </Button>
+            <input className="form-control mb-2" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} placeholder="Edit Title" />
+            <textarea className="form-control" rows={4} value={editContent} onChange={(e) => setEditContent(e.target.value)} placeholder="Edit Content" />
+            <div className="text-center mt-3">
+              <Button type="primary" onClick={handleUpdate}>Save Changes</Button>
+            </div>
           </>
         ) : (
           <>
-            <p className="text-gray-700">{selectedBlog?.content}</p>
-            <p className="text-sm text-gray-500 mt-4">
-              Posted on{" "}
-              {selectedBlog?.createdAt
-                ? new Date(
-                    selectedBlog.createdAt.seconds * 1000
-                  ).toLocaleString()
-                : "Unknown Date"}
-            </p>
+            <p className="text-secondary fs-5">{selectedBlog?.content}</p>
+            <div className="text-muted text-center mt-4">
+              <p>Posted on {selectedBlog?.createdAt ? new Date(selectedBlog.createdAt.seconds * 1000).toLocaleString() : "Unknown Date"}</p>
+            </div>
           </>
         )}
       </Modal>

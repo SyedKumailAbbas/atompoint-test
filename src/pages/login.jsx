@@ -48,8 +48,8 @@ const Login = () => {
             <div className="login-right">
                 <div className="login-right-container">
                     <div className="login-center">
-                        <h2>Welcome back!</h2>
-                        <p>Please enter your details</p>
+                        <h2 className="text-black">Welcome back!</h2>
+                        <p className="text-black">Please enter your details</p>
                         <form onSubmit={handleLoginSubmit}>
                             <Input name="email" type="email" placeholder="Email" size="large" />
                             <div className="pass-input-div mt-2">

@@ -8,15 +8,8 @@ const Home = () => {
   const navigate = useNavigate();
   const [refreshBlogs, setRefreshBlogs] = useState(false);
 
-  useEffect(() => {
-    if (!userLoggedIn) {
-      navigate("/"); 
-    }
-  }, [userLoggedIn, navigate]);
-
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Welcome to the Blog!</h1>
+    <div className=" p-6">
       <Blog key={refreshBlogs} /> 
     </div>
   );
